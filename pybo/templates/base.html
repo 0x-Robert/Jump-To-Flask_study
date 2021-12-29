@@ -10,11 +10,23 @@
 </head>
 <body>
 
+{% include "navbar.html" %}
+
+
+
 <!-- 기본 템플릿 안에 삽입될 내용 start -->
 
 {% block content %}
 {% endblock %}
 <!-- 기본 템플릿 안에 삽입될 내용 End -->
+
+
+<!-- jQuery js -->
+<script src="{{ url_for('static', filename='jquery-3.4.1.min.js') }}"></script>
+
+<!-- bootstrap JS -->
+<script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+
 
 
 </body>
