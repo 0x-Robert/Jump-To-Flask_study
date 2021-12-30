@@ -14,9 +14,14 @@
             {% if question_list %}
             {% for question in question_list.items %}
             <tr>
-                <td>{{ loop.index }}</td>
+                <td>{{ question_list.total - ((question_list.page-1) * question_list.per_page) - loop.index0 }} </td>
+<!--                <td>{{ loop.index }}</td>-->
+
                 <td>
                     <a href="{{ url_for('question.detail', question_id=question.id) }}">{{ question.subject }}</a>
+                    {% if question.answer_set | length > 0 %}
+                    <span class="text-danger small ml-2">{{ question.answer_set|length }}</span>
+                    {% endif %}
                 </td>
                 <td>{{ question.create_date|datetime }}</td>
             </tr>
