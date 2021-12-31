@@ -69,4 +69,4 @@ def delete(question_id):
         return redirect(url_for('question.detail', question_id=question_id))
     db.session.delete(question)
     db.session.commit()
-    return redirect(url_for('question.list'))
+    return redirect(url_for('question._list'))
