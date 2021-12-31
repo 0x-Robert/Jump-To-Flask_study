@@ -7,10 +7,19 @@
         <div class="card-body">
             <div class="card-text" style="white-space: pre-line;">{{ question.content }}</div>
             <div class="d-flex justify-content-end">
-                <div class="badge badge-light p-2">
-                    {{ question.create_date|datetime }}
+                <div class="badge badge-light p-2 text-left">
+                    <div class="mb-2">{{ question.user.username }}</div>
+                    <div>{{ question.create_date }}</div>
                 </div>
             </div>
+            {% if g.user == question.user %}
+            <div class="my-3">
+                <a href="{{ url_for('question.modify', question_id=question.id) }}"
+                   class="btn btn-sm btn-outline-secondary">수정</a>
+                <a href="#" class="delete btn btn-sm btn-outline-secondary"
+                   data-uri="{{ url_for('question.delete' , question_id=question.id) }}">삭제</a>
+            </div>
+            {% endif %}
         </div>
     </div>
 
@@ -19,10 +28,11 @@
     <div class="card my-3">
         <div class="card-body">
             <div class="card-text" style="white-space: pre-line;">{{ answer.content }}</div>
-
             <div class="d-flex justify-content-end">
-                <div class="badge badge-light p-2">
-                    {{ answer.create_date|datetime }}
+
+                <div class="badge badge-light p-2 text-left">
+                    <div class="mb-2">{{ answer.user.username }}</div>
+                    <div>{{ answer.create_date|datetime }}</div>
                 </div>
             </div>
         </div>
@@ -46,4 +56,17 @@
         <input type="submit" value="답변등록" class="btn btn-primary">
     </form>
 </div>
+{% endblock %}
+
+{% block script %}
+<script type="text/javascript">
+$(document).ready(function(){
+
+    $(".delete").on('click', function() {
+        if(confirm("정말로 삭제하시겠습니까?")){
+        location.href=$(this).data('uri');
+        }
+    });
+});
+</script>
 {% endblock %}
