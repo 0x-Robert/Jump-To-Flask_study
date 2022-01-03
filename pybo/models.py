@@ -1,32 +1,59 @@
 from pybo import db
 
+
+
+
+'''
+Question, Answer 모델 변경하기 다대다 관계
+하나의 질문에 여러명 추천, 한 명이 여러개의 질문에 추천
+'''
+#다대다 관계
+question_voter = db.Table(
+    'question_voter',
+    db.Column('user_id',db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), primary_key=True),
+    db.Column('question_id', db.Integer, db.ForeignKey('question.id',ondelete='CASCADE' ), primary_key=True)
+)
+
+
+answer_voter = db.Table(
+    'answer_voter',
+    db.Column('user_id', db.Integer, db.ForeignKey('user.id',ondelete='CASCADE'), primary_key=True),
+    db.Column('answer_id',db.Integer, db.ForeignKey('answer.id', ondelete='CASCADE'), primary_key=True)
+)
+
+
+
+
+
+
+# 작성자
+# user_id필드는 User모델 데이터의 id값을 Question 모델에 포함시키기 위한 것이다.
+# user 필드는 Question 모델에서 User 모델을 참조하기 위한 필드이다. db.relationship 함수로 필드를 추가함
+# question.user.username 처럼 Question 모델 객체 question을 통해 User 모델 데이터를 추가했다.
+# db.relationship 함수의 backref 매개변수는 User 모델 데이터를 통해 Question 모델데이터 참조를 위함, 질문을 여러개 작성했을 때
+# 나중에 자신이 작성한 질문을 user.question_set으로 참조할 수 있음
+
+'''
+필드의 기본값은 default와 server_default를 사용해서 설정할수 있다. 
+그런데 server_default와 default에는 어떤 차이가 있을까? 
+server_default를 사용하면 flask db upgrade 명령을 수행할 때 필드를 갖고 있지 않던 기존 데이터에도 기본값이 저장된다. 
+하지만 default는 새로 생성되는 데이터에만 기본값을 생성해 준다. 
+따라서 현재처럼 "없던 필드를 만들어야 하는 상황"에서는 default 대신 server_default를 사용해야 한다.
+
+nullable=True, server_default='1' 첫 지정 후 다시 nullable=False 설정, server_default 삭제
+기본값을 먼저 지정후 not nullable 설정해줘야 됨
+'''
 class Question(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     subject = db.Column(db.String(200), nullable=False)
     content = db.Column(db.Text(), nullable=False)
     create_date = db.Column(db.DateTime(), nullable=False) #nullable=False는 널을 허용하지 않음
-    #작성자
-    #user_id필드는 User모델 데이터의 id값을 Question 모델에 포함시키기 위한 것이다. 
-    #user 필드는 Question 모델에서 User 모델을 참조하기 위한 필드이다. db.relationship 함수로 필드를 추가함
-    # question.user.username 처럼 Question 모델 객체 question을 통해 User 모델 데이터를 추가했다.
-    # db.relationship 함수의 backref 매개변수는 User 모델 데이터를 통해 Question 모델데이터 참조를 위함, 질문을 여러개 작성했을 때 
-    # 나중에 자신이 작성한 질문을 user.question_set으로 참조할 수 있음
-
-    '''
-    필드의 기본값은 default와 server_default를 사용해서 설정할수 있다. 
-    그런데 server_default와 default에는 어떤 차이가 있을까? 
-    server_default를 사용하면 flask db upgrade 명령을 수행할 때 필드를 갖고 있지 않던 기존 데이터에도 기본값이 저장된다. 
-    하지만 default는 새로 생성되는 데이터에만 기본값을 생성해 준다. 
-    따라서 현재처럼 "없던 필드를 만들어야 하는 상황"에서는 default 대신 server_default를 사용해야 한다.
-    
-    nullable=True, server_default='1' 첫 지정 후 다시 nullable=False 설정, server_default 삭제
-    기본값을 먼저 지정후 not nullable 설정해줘야 됨
-    '''
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
     user = db.relationship('User', backref=db.backref('question_set'))
-
     modify_date = db.Column(db.DateTime(),nullable=True)
-
+    #secondary속성이 존재하고, voter가 다대다관계이고 question_voter 테이블 참조함
+    voter = db.relationship('User', secondary=question_voter, backref=db.backref('question_voter_set'))
+    
 
 
 
@@ -42,11 +69,11 @@ class Answer(db.Model):
     question=db.relationship('Question',backref=db.backref('answer_set'))
     content = db.Column(db.Text(), nullable=False)
     create_date=db.Column(db.DateTime(), nullable=False)
-
-
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
     user=db.relationship('User', backref=db.backref('answer_set'))
     modify_date = db.Column(db.DateTime(), nullable=True)
+    voter = db.relationship('User',secondary=answer_voter,backref=db.backref('answer_voter_set'))
+
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
