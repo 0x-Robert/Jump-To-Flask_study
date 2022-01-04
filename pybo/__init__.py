@@ -2,7 +2,7 @@ from flask import Flask
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import MetaData
-
+from flasktext.markdown import Markdown
 
 import config
 
@@ -22,6 +22,9 @@ migrate = Migrate()
 def create_app():
     app = Flask(__name__)
     app.config.from_object(config)
+
+    #Mark down
+    Markdown(app,extensions=['n12br','fenced_code'])
 
     #ORM
     db.init_app(app)
