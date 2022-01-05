@@ -93,30 +93,3 @@ def delete(question_id):
 
 
 
-'''
-서브쿼리 연습함 flask shell 이용
-
-Python 3.7.4 (tags/v3.7.4:e09359112e, Jul  8 2019, 19:29:22) [MSC v.1916 32 bit (Intel)] on win32
-App: pybo [development]
-Instance: C:\Users\smart\PycharmProjects\myproject\instance
->>> from pybo.models import Question, Answer
->>> Question.query.count()
-302
->>> Answer.query.count()
-8
->>> Question.query.join(Answer).count()
-8
->>> print(Question.query.outerjoin(Answer).count()
-... )
-304
->>>
->>> print(Question.query.outerjoin(Answer).distinct().count())
-302
->>> Question.query.outerjoin(Answer).filter(
-...      Question.content.ilike('%파이썬%')
-...
-...      |Answer.content.ilike('%파이썬%')).distinct().count()
-
-
-
-'''
