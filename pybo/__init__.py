@@ -2,7 +2,7 @@ from flask import Flask
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import MetaData
-from flasktext.markdown import Markdown
+from flaskext.markdown import Markdown
 
 import config
 
@@ -24,7 +24,7 @@ def create_app():
     app.config.from_object(config)
 
     #Mark down
-    Markdown(app,extensions=['n12br','fenced_code'])
+    Markdown(app,extensions=['nl2br','fenced_code'])
 
     #ORM
     db.init_app(app)
