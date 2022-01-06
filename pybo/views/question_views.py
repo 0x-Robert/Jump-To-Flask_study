@@ -3,8 +3,8 @@ from flask import Blueprint, render_template, request, url_for,g, flash
 from werkzeug.utils import redirect
 from .. import db
 from ..forms import QuestionForm, AnswerForm
-from pybo.models import Question ,Answer, User
-
+from pybo.models import Question ,Answer, User , question_voter
+from sqlalchemy import func
 from pybo.views.auth_views import login_required
 
 bp = Blueprint('question', __name__ , url_prefix='/question')
@@ -15,9 +15,25 @@ def _list():
     #입력 파라미터
     page = request.args.get('page', type=int, default=1) #페이지
     kw = request.args.get('kw', type=str, default='')
+    so = request.args.get('so', type=str, default='recent')
+
+    # 정렬
+    if so == 'recommend':
+        sub_query = db.session.query(question_voter.c.question_id, func.count('*').label('num_voter')) \
+            .group_by(question_voter.c.question_id).subquery()
+        question_list = Question.query \
+            .outerjoin(sub_query, Question.id == sub_query.c.question_id) \
+            .order_by(sub_query.c.num_voter.desc(), Question.create_date.desc())
+    elif so == 'popular':
+        sub_query = db.session.query(Answer.question_id, func.count('*').label('num_answer')) \
+            .group_by(Answer.question_id).subquery()
+        question_list = Question.query \
+            .outerjoin(sub_query, Question.id == sub_query.c.question_id) \
+            .order_by(sub_query.c.num_answer.desc(), Question.create_date.desc())
+    else:  # recent
+        question_list = Question.query.order_by(Question.create_date.desc())
 
     #조회
-
     question_list = Question.query.order_by(Question.create_date.desc())
     if kw:
         search = '%%{}%%'.format(kw)
@@ -35,7 +51,7 @@ def _list():
             .distinct()
     #페이징
     question_list = question_list.paginate(page, per_page=10)
-    return render_template('question/question_list.html', question_list=question_list, page=page, kw=kw)
+    return render_template('question/question_list.html', question_list=question_list, page=page, kw=kw , so=so)
 
 
 @bp.route('/detail/<int:question_id>/')
