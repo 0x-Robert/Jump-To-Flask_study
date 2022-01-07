@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import MetaData
 from flaskext.markdown import Markdown
 
-import config
+#import config
 
 #플라스크 ORM에서 정상적으로 사용하기위해 sqlite 디비에서 사용하는 인덱스 등의제약조건 이름은 MetaDATA클래스를 사용해서 정의를 해줘야한다.
 naming_convention={
@@ -21,7 +21,8 @@ migrate = Migrate()
 
 def create_app():
     app = Flask(__name__)
-    app.config.from_object(config)
+    #set APP_CONFIG_FILE=c:\projects\myproject\config\development.py
+    app.config.from_object('APP_CONFIG_FILE')
 
     #Mark down
     Markdown(app,extensions=['nl2br','fenced_code'])
