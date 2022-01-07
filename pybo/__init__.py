@@ -22,7 +22,8 @@ migrate = Migrate()
 def create_app():
     app = Flask(__name__)
     #set APP_CONFIG_FILE=c:\projects\myproject\config\development.py
-    app.config.from_object('APP_CONFIG_FILE')
+    #APP_CONFIG_FILE='/home/ubuntu/projects/myproject/config/production.py'
+    app.config.from_envvar('APP_CONFIG_FILE')
 
     #Mark down
     Markdown(app,extensions=['nl2br','fenced_code'])
